@@ -13,7 +13,6 @@ namespace MeetingsAPI_V3.Services
     {
         private readonly DataContext _context;
         private readonly string _url = "http://contacts:5000/contacts/";
-        //private readonly string _url = "http://localhost/contacts/";
 
         static readonly HttpClient client = new HttpClient();
 
@@ -202,7 +201,60 @@ namespace MeetingsAPI_V3.Services
             return meeting;
         }
 
+        public async Task<ResponseModel<Meeting>> UpdateMeeting(int id, MeetingDto meetingDto)
+        {
+            var meeting = await _context.Meetings.Where(m => m.Id == id).FirstOrDefaultAsync();
 
+            ResponseModel<Meeting> response = new ResponseModel<Meeting>();
+
+            if (meeting == null)
+            {
+                response.ResultCode = 404;
+                response.Message = "Meeting not found";
+                return response;
+            }
+
+            _mapper.Map(meetingDto, meeting);
+            Random rnd = new Random();
+
+            meeting.Users = string.Empty;
+            foreach (var user in meetingDto.Users)
+            {
+                var existingUser = await FindUserAsync(user.Id);
+                if (user != null && existingUser != null)
+                {
+                    if (user.Equals(existingUser))
+                    {
+                        meeting.Users += user.Id + ",";
+                        continue;
+                    }
+
+                    var newId = rnd.Next(1, Int16.MaxValue);
+                    var userId = user.Id;
+                    user.Id = newId;
+                    var httpResponse = await client.PutAsJsonAsync(_url + userId, user);
+                    if (httpResponse.IsSuccessStatusCode)
+                    {
+                        meeting.Users += newId + ",";
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+            }
+            if (meeting.Users.Length > 1 && meeting.Users[meeting.Users.Length - 1] == ',')
+            {
+                var usersStringWithoutComma = meeting.Users.Remove(meeting.Users.Length - 1);
+                meeting.Users = usersStringWithoutComma;
+            }
+            await _context.SaveChangesAsync();
+
+            response.Data = meeting;
+            response.ResultCode = 200;
+            response.Message = "Meeting updated successfully";
+            return response;
+        }
 
         public async Task<ResponseModel<MeetingGetDto>> DeleteMeetingAsync(int meetingId)
         {
@@ -225,9 +277,121 @@ namespace MeetingsAPI_V3.Services
                 response.ResultCode = 404;
             }
 
+            return response;
+        }
+
+        public async Task<ResponseModel<MeetingWithUserObjDto>> AddUserToMeeting(int id, MeetingWithUserObjDto user)
+        {
+            var responseFromMeetings = await GetMeetingAsync(id);
+            ResponseModel<MeetingWithUserObjDto> response = new ResponseModel<MeetingWithUserObjDto>();
+
+            if (responseFromMeetings.Data == null)
+            {
+                response.Message = "Meeting not found";
+                response.ResultCode = 404;
+                return response;
+            }
+
+            if (user.Users == null) 
+            {
+                response.ResultCode = 400;
+                response.Message = "Bad request";
+                return response;
+            }
+
+            var meeting = await _context.Meetings.Where(m => m.Id == id).FirstOrDefaultAsync();
+
+            if (meeting?.Users.Length > 0)
+            {
+                meeting.Users += ",";
+            }
+
+            foreach (var userInfo in user.Users)
+            {
+                if (userInfo.Id == 0 || await FindUserAsync(userInfo.Id) == null)
+                {
+                    Random rnd = new Random();
+                    int generatedId;
+                    if (userInfo.Id == 0)
+                    {
+                        generatedId = rnd.Next(1, Int16.MaxValue);
+                        userInfo.Id = generatedId;
+                    }
+
+                    HttpResponseMessage httpResponse = null!;
+
+                    try
+                    {
+                        httpResponse = await client.PostAsJsonAsync(_url, userInfo);
+                        if (httpResponse.IsSuccessStatusCode)
+                            meeting.Users += userInfo.Id + ",";
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        break;
+                    }
+                }
+                else
+                {
+                    meeting.Users += userInfo.Id + ",";
+                }
+            }
+
+            var usersStringWithoutComma = meeting.Users.Remove(meeting.Users.Length - 1);
+            meeting.Users = usersStringWithoutComma;
+
+
+            await _context.SaveChangesAsync();
+
+            response.Data = user;
+            response.Message = "User added successfully";
+            response.ResultCode = 200;
 
             return response;
         }
+
+        public async Task<ResponseModel<User>> RemoveUserFromMeeting(int id, int userId)
+        {
+            var meeting = await _context.Meetings.Where(m => m.Id == id).FirstOrDefaultAsync();
+            ResponseModel<User> response = new ResponseModel<User>();
+
+            if (meeting == null)
+            {
+                response.ResultCode = 404;
+                response.Message = "Meeting not found";
+                return response;
+            }
+
+            string[] usersIds = new string[0];
+
+            if (meeting.Users != string.Empty)
+            {
+                usersIds = meeting.Users.Split(',');
+                int initialArrayLength = usersIds.Length;
+                usersIds = usersIds.Where(x => x != userId.ToString()).ToArray();
+
+                if (initialArrayLength == usersIds.Length)
+                {
+                    response.ResultCode = 404;
+                    response.Message = "User not found in meeting";
+                    return response;
+                }
+
+                meeting.Users = String.Join(",", usersIds);
+                await _context.SaveChangesAsync();
+
+                response.ResultCode = 204;
+                response.Message = "User removed successfully from meeting";
+                return response;
+            }
+
+            response.ResultCode = 404;
+            response.Message = "User not found in meeting";
+            return response;
+
+        }
+
 
         public async Task<User?> FindUserAsync(int userId)
         {

@@ -13,7 +13,6 @@ namespace MeetingsAPI_V2.Controllers
     public class UsersController : ControllerBase
     {
         private readonly string _url = "http://contacts:5000/contacts/";
-        //private readonly string _url = "http://localhost/contacts/";
 
         static readonly HttpClient client = new HttpClient();
 

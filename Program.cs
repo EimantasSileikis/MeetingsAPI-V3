@@ -44,7 +44,7 @@ app.UseAuthorization();
 app.UseEndpoints(endpoints => {
     endpoints.UseSoapEndpoint<IMeetingService>(opt =>
     {
-        opt.Path = "/Service.asmx";
+        opt.Path = "/meetings.asmx";
         opt.SoapSerializer = SoapSerializer.DataContractSerializer;
         opt.AdditionalEnvelopeXmlnsAttributes = new Dictionary<string, string>()
         {

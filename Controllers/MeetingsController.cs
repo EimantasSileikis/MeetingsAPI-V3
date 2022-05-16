@@ -20,7 +20,6 @@ namespace MeetingsAPI_V3.Controllers
         private readonly IMapper _mapper;
 
         private readonly string _url = "http://contacts:5000/contacts/";
-        //private readonly string _url = "http://localhost/contacts/";
 
         static readonly HttpClient client = new HttpClient();
 
@@ -212,14 +211,40 @@ namespace MeetingsAPI_V3.Controllers
             }
 
             _mapper.Map(meetingDto, meeting);
+            Random rnd = new Random();
 
             meeting.Users = string.Empty;
             foreach (var user in meetingDto.Users)
             {
-                meeting.Users += user.Id + ",";
+                var existingUser = await _meetingRepository.FindUserAsync(user.Id);
+                if (user != null && existingUser != null)
+                {
+                    if (user.Equals(existingUser))
+                    {
+                        meeting.Users += user.Id + ",";
+                        continue;
+                    }
+
+                    var newId = rnd.Next(1, Int16.MaxValue);
+                    var userId = user.Id;
+                    user.Id = newId;
+                    var response = await client.PutAsJsonAsync(_url + userId, user);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        meeting.Users += newId + ",";
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
-            var usersStringWithoutComma = meeting.Users.Remove(meeting.Users.Length - 1);
-            meeting.Users = usersStringWithoutComma;
+            if(meeting.Users.Length > 1 && meeting.Users[meeting.Users.Length - 1] == ',')
+            {
+                var usersStringWithoutComma = meeting.Users.Remove(meeting.Users.Length - 1);
+                meeting.Users = usersStringWithoutComma;
+            }
+            
             await _meetingRepository.SaveChangesAsync();
 
             return Ok(meeting);
