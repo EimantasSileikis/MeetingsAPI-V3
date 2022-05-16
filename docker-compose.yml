@@ -1,0 +1,31 @@
+﻿version: '3.9'
+
+services:
+ ms-sql-server:
+  image: "mcr.microsoft.com/mssql/server"
+  environment:
+   ACCEPT_EULA: "Y"
+   SA_PASSWORD: "Pa55w0rd2022"
+  ports:
+   - "1433:1433"
+  networks:
+   - my-network
+ contacts:
+  build: 
+   context: contacts
+   dockerfile: Dockerfile
+  ports:
+   - "80:5000"
+  networks:
+   - my-network
+ meetings-api:
+  build: .
+  ports:
+   - "5000:80"
+  networks:
+   - my-network
+  depends_on:
+   - ms-sql-server
+
+networks:
+    my-network:
