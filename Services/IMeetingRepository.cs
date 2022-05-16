@@ -1,4 +1,5 @@
-﻿using MeetingsAPI_V3.Entities;
+﻿using MeetingsAPI_V3.Entities.Meeting;
+using MeetingsAPI_V3.Entities;
 using System.ServiceModel;
 
 namespace MeetingsAPI_V3.Services

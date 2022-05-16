@@ -1,4 +1,4 @@
-﻿using MeetingsAPI_V3.Entities;
+﻿using MeetingsAPI_V3.Entities.Meeting;
 using MeetingsAPI_V3.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.ServiceModel;
@@ -12,9 +12,12 @@ namespace MeetingsAPI_V3.Services
         Task<List<MeetingGetDto>> GetMeetingsAsync();
 
         [OperationContract]
+        Task<ResponseModel<MeetingGetDto?>> GetMeetingAsync(int meetingId);
+
+        [OperationContract]
         Task<Meeting> AddMeetingAsync(MeetingDto meeting);
 
         [OperationContract]
-        Task<ResponseModel<Meeting>> DeleteMeetingAsync(int meetingId);
+        Task<ResponseModel<MeetingGetDto>> DeleteMeetingAsync(int meetingId);
     }
 }

@@ -49,7 +49,8 @@ app.UseEndpoints(endpoints => {
         opt.AdditionalEnvelopeXmlnsAttributes = new Dictionary<string, string>()
         {
             { "meeting", "http://schemas.datacontract.org/2004/07/MeetingsAPI_V3.Models" },
-            { "user", "http://schemas.datacontract.org/2004/07/MeetingsAPI_V3.Entities"}
+            { "user", "http://schemas.datacontract.org/2004/07/MeetingsAPI_V3.Entities"},
+            { "meet", "http://schemas.datacontract.org/2004/07/MeetingsAPI_V3.Entities.Meeting" }
         };
     });
 });

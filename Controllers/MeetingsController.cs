@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MeetingsAPI_V3.Entities.Meeting;
 using MeetingsAPI_V3.Entities;
 using MeetingsAPI_V3.Models;
 using MeetingsAPI_V3.Services;
@@ -18,8 +19,8 @@ namespace MeetingsAPI_V3.Controllers
         private readonly IMeetingRepository _meetingRepository;
         private readonly IMapper _mapper;
 
-        //private readonly string _url = "http://contacts:5000/contacts/";
-        private readonly string _url = "http://localhost/contacts/";
+        private readonly string _url = "http://contacts:5000/contacts/";
+        //private readonly string _url = "http://localhost/contacts/";
 
         static readonly HttpClient client = new HttpClient();
 

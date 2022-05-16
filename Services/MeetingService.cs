@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MeetingsAPI_V3.Data;
+using MeetingsAPI_V3.Entities.Meeting;
 using MeetingsAPI_V3.Entities;
 using MeetingsAPI_V3.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,8 +12,8 @@ namespace MeetingsAPI_V3.Services
     public class MeetingService: IMeetingService
     {
         private readonly DataContext _context;
-        //private readonly string _url = "http://contacts:5000/contacts/";
-        private readonly string _url = "http://localhost/contacts/";
+        private readonly string _url = "http://contacts:5000/contacts/";
+        //private readonly string _url = "http://localhost/contacts/";
 
         static readonly HttpClient client = new HttpClient();
 
@@ -95,9 +96,61 @@ namespace MeetingsAPI_V3.Services
             return meetingList;
         }
 
-        public async Task<Meeting?> GetMeetingAsync(int meetingId)
+        public async Task<ResponseModel<MeetingGetDto?>> GetMeetingAsync(int meetingId)
         {
-            return await _context.Meetings.Where(m => m.Id == meetingId).FirstOrDefaultAsync();
+            var meeting = await _context.Meetings.Where(m => m.Id == meetingId).FirstOrDefaultAsync();
+
+            ResponseModel<MeetingGetDto> response = new ResponseModel<MeetingGetDto>();
+
+            if(meeting == null)
+            {
+                response.Data = null;
+                response.Message = "Meeting not found";
+                response.ResultCode = 404;
+
+                return response;
+            }
+
+            string[] usersIds = new string[0];
+
+            if (meeting.Users != string.Empty)
+            {
+                usersIds = meeting.Users.Split(',');
+            }
+
+
+            List<User> userList = new List<User>();
+
+            foreach (var userId in usersIds)
+            {
+                try
+                {
+                    string responseBody = await client.GetStringAsync(_url + userId);
+                    var user = JsonConvert.DeserializeObject<User>(responseBody);
+                    if (user != null)
+                    {
+                        userList.Add(user);
+                    }
+                }
+                catch (HttpRequestException e)
+                {
+                    Console.WriteLine("Message :{0} ", e.Message);
+                    break;
+                }
+            }
+
+            MeetingGetDto meetingDto = new MeetingGetDto()
+            {
+                Id = meeting.Id,
+                Name = meeting.Name,
+                Users = userList
+            };
+
+            response.Data = meetingDto;
+            response.Message = "Success";
+            response.ResultCode = 200;
+
+            return response;
         }
 
         public async Task<Meeting> AddMeetingAsync(MeetingDto meetingDto)
@@ -151,17 +204,18 @@ namespace MeetingsAPI_V3.Services
 
 
 
-        public async Task<ResponseModel<Meeting>> DeleteMeetingAsync(int meetingId)
+        public async Task<ResponseModel<MeetingGetDto>> DeleteMeetingAsync(int meetingId)
         {
             var meeting = await GetMeetingAsync(meetingId);
 
-            ResponseModel<Meeting> response = new ResponseModel<Meeting>();
+            ResponseModel<MeetingGetDto> response = new ResponseModel<MeetingGetDto>();
 
-            if (meeting != null)
+            if (meeting.Data != null)
             {
-                _context.Remove(meeting);
+                var meetingToDelete = await _context.Meetings.Where(m => m.Id == meetingId).FirstOrDefaultAsync();
+                _context.Remove(meetingToDelete);
                 await _context.SaveChangesAsync();
-                response.Data = meeting;
+                response.Data = meeting.Data;
                 response.Message = "Meeting has been deleted successfully";
                 response.ResultCode = 204;
             }

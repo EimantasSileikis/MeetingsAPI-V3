@@ -1,4 +1,4 @@
-﻿using MeetingsAPI_V3.Entities;
+﻿using MeetingsAPI_V3.Entities.Meeting;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeetingsAPI_V3.Data

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 
-namespace MeetingsAPI_V3.Entities
+namespace MeetingsAPI_V3.Entities.Meeting
 {
     [DataContract]
     public class Meeting

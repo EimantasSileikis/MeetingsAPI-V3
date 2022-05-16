@@ -1,5 +1,6 @@
 ﻿using MeetingsAPI_V3.Data;
 using MeetingsAPI_V3.Entities;
+using MeetingsAPI_V3.Entities.Meeting;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -8,8 +9,8 @@ namespace MeetingsAPI_V3.Services
     public class MeetingRepository: IMeetingRepository
     {
         private readonly DataContext _context;
-        //private readonly string _url = "http://contacts:5000/contacts/";
-        private readonly string _url = "http://localhost/contacts/";
+        private readonly string _url = "http://contacts:5000/contacts/";
+        //private readonly string _url = "http://localhost/contacts/";
 
         static readonly HttpClient client = new HttpClient();
 
