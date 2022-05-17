@@ -6,7 +6,7 @@ using System.ServiceModel;
 
 namespace MeetingsAPI_V3.Services
 {
-    [ServiceContract]
+    [ServiceContract(Name = "MeetingsApi", Namespace = "http://www.example.com/meetings")]
     public interface IMeetingService
     {
         [OperationContract]

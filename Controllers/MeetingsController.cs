@@ -18,16 +18,19 @@ namespace MeetingsAPI_V3.Controllers
     {
         private readonly IMeetingRepository _meetingRepository;
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        private readonly string _url = "http://contacts:5000/contacts/";
+        private readonly string _url;
 
         static readonly HttpClient client = new HttpClient();
 
         public MeetingsController(IMeetingRepository meetingRepository,
-            IMapper mapper)
+            IMapper mapper, IConfiguration configuration)
         {
             _meetingRepository = meetingRepository ?? throw new ArgumentNullException(nameof(meetingRepository));
             _mapper = mapper;
+            _configuration = configuration;
+            _url = _configuration["ContactsUrl"];
         }
 
         [HttpGet]

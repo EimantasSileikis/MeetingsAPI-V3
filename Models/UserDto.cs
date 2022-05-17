@@ -2,7 +2,7 @@
 
 namespace MeetingsAPI_V3.Models
 {
-    [DataContract]
+    [DataContract(Namespace = "http://www.example.com/meetings")]
     public class UserDto
     {
         [DataMember(IsRequired = true, Order = 1)]

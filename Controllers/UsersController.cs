@@ -12,9 +12,16 @@ namespace MeetingsAPI_V2.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private readonly string _url = "http://contacts:5000/contacts/";
+        private readonly IConfiguration _configuration;
 
+        private readonly string _url;
         static readonly HttpClient client = new HttpClient();
+
+        public UsersController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+            _url = _configuration["ContactsUrl"];
+        }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()

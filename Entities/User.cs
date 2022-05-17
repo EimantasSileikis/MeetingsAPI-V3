@@ -2,7 +2,7 @@
 
 namespace MeetingsAPI_V3.Entities
 {
-    [DataContract]
+    [DataContract(Namespace = "http://www.example.com/meetings")]
     public class User
     {
         [DataMember(Order = 1)]

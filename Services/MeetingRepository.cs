@@ -9,14 +9,17 @@ namespace MeetingsAPI_V3.Services
     public class MeetingRepository: IMeetingRepository
     {
         private readonly DataContext _context;
-        private readonly string _url = "http://contacts:5000/contacts/";
+        private readonly string _url;
 
         static readonly HttpClient client = new HttpClient();
 
+        private readonly IConfiguration _configuration;
 
-        public MeetingRepository(DataContext context)
+        public MeetingRepository(DataContext context, IConfiguration configuration)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _configuration = configuration;
+            _url = _configuration["ContactsUrl"];
         }
 
         public async Task<IEnumerable<Meeting>> GetMeetingsAsync()

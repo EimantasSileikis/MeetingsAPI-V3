@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 
 namespace MeetingsAPI_V3.Models
 {
-    [DataContract]
+    [DataContract(Namespace = "http://www.example.com/meetings")]
     public class MeetingWithUserObjDto
     {
         [Required]

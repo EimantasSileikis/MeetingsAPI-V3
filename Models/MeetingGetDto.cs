@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace MeetingsAPI_V3.Models
 {
-    [DataContract]
+    [DataContract(Namespace = "http://www.example.com/meetings")]
     public class MeetingGetDto
     {
         [DataMember]

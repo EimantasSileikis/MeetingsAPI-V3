@@ -12,16 +12,19 @@ namespace MeetingsAPI_V3.Services
     public class MeetingService: IMeetingService
     {
         private readonly DataContext _context;
-        private readonly string _url = "http://contacts:5000/contacts/";
+        private string _url;
 
         static readonly HttpClient client = new HttpClient();
 
         private readonly IMapper _mapper;
+        private readonly IConfiguration _configuration;
 
-        public MeetingService(DataContext context, IMapper mapper)
+        public MeetingService(DataContext context, IMapper mapper, IConfiguration configuration)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _mapper = mapper;
+            _configuration = configuration;
+            _url = _configuration["ContactsUrl"];
         }
 
         public async Task<List<MeetingGetDto>> GetMeetingsAsync()
