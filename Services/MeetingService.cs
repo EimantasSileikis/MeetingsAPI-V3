@@ -232,13 +232,18 @@ namespace MeetingsAPI_V3.Services
                         continue;
                     }
 
-                    var newId = rnd.Next(1, Int16.MaxValue);
-                    var userId = user.Id;
-                    user.Id = newId;
-                    var httpResponse = await client.PutAsJsonAsync(_url + userId, user);
+                    UserDto userDto = new UserDto() 
+                    {
+                        Surname = user.Surname,
+                        Name = user.Name,
+                        Number = user.Number,
+                        Email = user.Email
+                    };
+
+                    var httpResponse = await client.PutAsJsonAsync(_url + user.Id, userDto);
                     if (httpResponse.IsSuccessStatusCode)
                     {
-                        meeting.Users += newId + ",";
+                        meeting.Users += user.Id + ",";
                     }
                     else
                     {
