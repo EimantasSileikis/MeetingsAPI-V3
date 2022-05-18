@@ -141,7 +141,7 @@ Example:
             <meet:Name>First Meeting</meet:Name>
             <meet:Users>
                <meet:User>
-                  <meet:Id>87014</meet:Id>
+                  <meet:Id>12345</meet:Id>
                   <meet:Surname>UpdatedSurname</meet:Surname>
                   <meet:Name>UpdatedName</meet:Name>
                   <meet:Number>UpdatedNumber</meet:Number>
